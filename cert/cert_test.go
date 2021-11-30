@@ -49,3 +49,18 @@ func TestNameTooLong(t *testing.T) {
 		t.Errorf("Error should be returned on a too long student name (got %s)", name)
 	}
 }
+
+// Date tests
+func TestDateEmptyValue(t *testing.T) {
+	_, err := New("Golang", "Bob", "")
+	if err == nil {
+		t.Errorf("Error should be returned on empty date")
+	}
+}
+
+func TestDateFalseValue(t *testing.T) {
+	_, err := New("Golang", "Bob", "ezaey156987")
+	if err == nil {
+		t.Errorf("Error should be returned on wrong date entries")
+	}
+}

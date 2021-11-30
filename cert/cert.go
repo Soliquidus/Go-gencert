@@ -2,6 +2,7 @@ package cert
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -34,16 +35,20 @@ func New(course, name, date string) (*Cert, error) {
 	if err != nil {
 		return nil, err
 	}
-	d := date
+	d, err := parseDate(date)
+	if err != nil {
+		return nil, err
+	}
 
 	cert := &Cert{
 		Course:             c,
 		Name:               n,
+		Date:               d,
 		LabelTitle:         fmt.Sprintf("%v Certificate - %v", c, n),
 		LabelCompletion:    "Certificate of Completion",
 		LabelPresented:     "This Certificate is Presented To",
 		LabelParticipation: fmt.Sprintf("For participation in the %v", c),
-		LabelDate:          fmt.Sprintf("Date: %v", d),
+		LabelDate:          fmt.Sprintf("Date: %v", d.Format("02/01/2006")),
 	}
 	return cert, nil
 }
@@ -67,7 +72,16 @@ func validateName(name string) (string, error) {
 	return strings.ToTitle(n), nil
 }
 
-//validateStr To avoid empty strings
+func parseDate(date string) (time.Time, error) {
+	re := regexp.MustCompile("(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[012])/((19|20)\\\\d\\\\d)")
+	t, err := time.Parse("2006-01-02", date)
+	if err != nil || !re.MatchString(date) {
+		return t, err
+	}
+	return t, nil
+}
+
+//validateStr To avoid empty or too long strings
 func validateStr(str string, maxLen int) (string, error) {
 	c := strings.TrimSpace(str)
 	if len(c) <= 0 {
