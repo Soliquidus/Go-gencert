@@ -2,8 +2,12 @@ package cert
 
 import (
 	"fmt"
+	"strings"
 	"time"
 )
+
+var MaxLenCourse = 20
+var MaxLenName = 30
 
 type Cert struct {
 	Course string
@@ -22,8 +26,14 @@ type Saver interface {
 }
 
 func New(course, name, date string) (*Cert, error) {
-	c := course
-	n := name
+	c, err := validateCourse(course)
+	if err != nil {
+		return nil, err
+	}
+	n, err := validateName(name)
+	if err != nil {
+		return nil, err
+	}
 	d := date
 
 	cert := &Cert{
@@ -36,4 +46,34 @@ func New(course, name, date string) (*Cert, error) {
 		LabelDate:          fmt.Sprintf("Date: %v", d),
 	}
 	return cert, nil
+}
+
+func validateCourse(course string) (string, error) {
+	c, err := validateStr(course, MaxLenCourse)
+	if err != nil {
+		return "", err
+	}
+	if !strings.HasSuffix(c, " course") {
+		c = c + " course"
+	}
+	return strings.ToTitle(c), nil
+}
+
+func validateName(name string) (string, error) {
+	n, err := validateStr(name, MaxLenName)
+	if err != nil {
+		return "", err
+	}
+	return strings.ToTitle(n), nil
+}
+
+//validateStr To avoid empty strings
+func validateStr(str string, maxLen int) (string, error) {
+	c := strings.TrimSpace(str)
+	if len(c) <= 0 {
+		return c, fmt.Errorf("invalid string, got '%s', len %d", c, len(c))
+	} else if len(c) >= maxLen {
+		return c, fmt.Errorf("invalid string, got '%s', len %d", c, len(c))
+	}
+	return c, nil
 }
