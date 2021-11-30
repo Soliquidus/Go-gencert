@@ -36,6 +36,31 @@ func (p *PdfSaver) Save(cert cert.Cert) error {
 	// --
 	// Header
 	header(pdf, &cert)
+	pdf.Ln(30)
+
+	// --
+	// Body
+	pdf.SetFont("Helvetica", "I", 20)
+	pdf.WriteAligned(0, 50, cert.LabelPresented, "C")
+	pdf.Ln(30)
+
+	// Body - Student name
+	pdf.SetFont("Times", "B", 40)
+	pdf.WriteAligned(0, 50, cert.Name, "C")
+	pdf.Ln(30)
+
+	// Body - Participation
+	pdf.SetFont("Helvetica", "I", 20)
+	pdf.WriteAligned(0, 50, cert.LabelParticipation, "C")
+	pdf.Ln(30)
+
+	// Body - Date
+	pdf.SetFont("Helvetica", "I", 15)
+	pdf.WriteAligned(0, 50, cert.LabelDate, "C")
+
+	// --
+	// Footer
+	footer(pdf)
 
 	// save file
 	filename := fmt.Sprintf("%v.pdf", cert.LabelTitle)
@@ -82,5 +107,21 @@ func background(pdf *gofpdf.Fpdf) {
 	pdf.ImageOptions("img/background.png",
 		0, 0,
 		pageWidth, pageHeight,
+		false, opts, 0, "")
+}
+
+func footer(pdf *gofpdf.Fpdf) {
+	opts := gofpdf.ImageOptions{
+		ImageType: "png",
+	}
+
+	imageWidth := 50.0
+	filename := "img/stamp.png"
+	pageWidth, pageHeight := pdf.GetPageSize()
+	x := pageWidth - imageWidth - 20.0
+	y := pageHeight - imageWidth - 10
+	pdf.ImageOptions(filename,
+		x, y,
+		imageWidth, 0,
 		false, opts, 0, "")
 }
